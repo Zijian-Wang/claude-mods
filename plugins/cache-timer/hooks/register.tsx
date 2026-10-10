@@ -8,6 +8,7 @@ const now = atom({ plugin: 'cache-timer', key: 'now' } as const, 0)
 const WARM = '#EE8F55' // Claude orange, a touch brighter
 const LOW = '#E5583F' // last stretch
 const COLD = '#7CC6F0' // ice blue
+const IDLE = '#8f8f99'
 const TRACK = '#8886'
 
 const fmt = (ms: number) => {
@@ -58,17 +59,18 @@ export const register: Register = (on) => {
   on('ui.render', { component: 'SessionMode' }, async ($, e, next) => {
     const below = await next(e)
     const last = await read($, lastAt)
-    if (last === null) return below
-
     const t = (await read($, now)) || Date.now()
-    const left = last + TTL_MS - t
+    const isIdle = last === null
+    const left = isIdle ? 0 : last + TTL_MS - t
     const { Box, Text } = $.ui.resolve(e)
     const Svg = ($.ui.resolve(e) as any).Svg
 
-    const isCold = left <= 0
+    const isCold = !isIdle && left <= 0
     const frac = isCold ? 0 : left / TTL_MS
-    const color = isCold ? COLD : frac > 0.2 ? WARM : LOW
-    const tip = isCold
+    const color = isIdle ? IDLE : isCold ? COLD : frac > 0.2 ? WARM : LOW
+    const tip = isIdle
+      ? 'No cache yet · the timer starts after your first message'
+      : isCold
       ? 'Cache cold · next message re-caches the whole prefix'
       : `${fmt(left)} left · cache warm`
 
@@ -76,7 +78,7 @@ export const register: Register = (on) => {
       <Box flexDirection="row" alignItems="center" gap={1}>
         {Svg ? (
           <Svg
-            source={ringSvg(isCold ? 1 : frac, color, !isCold, tip)}
+            source={ringSvg(isCold ? 1 : frac, color, !isCold && !isIdle, tip)}
             alt={tip}
             width={22}
             height={22}
