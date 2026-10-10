@@ -1825,7 +1825,7 @@ export const register: Register = (on, options) => {
 
     return (
       <Box flexDirection="row" alignItems="center" gap={1}>
-        <Button key="progress-toggle" dimColor={count === 0 || !open} label={count > 1 ? `Progress ${count}` : 'Progress'} onPress={press} />
+        <Button key="progress-toggle" plain variant="secondary" dimColor={count === 0 || !open} label={count > 1 ? `Progress ${count}` : 'Progress'} onPress={press} />
         {below}
       </Box>
     )
