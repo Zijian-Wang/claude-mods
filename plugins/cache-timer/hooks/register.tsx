@@ -75,18 +75,26 @@ export const register: Register = (on) => {
       : `${fmt(left)} left · cache warm`
 
     return (
-      <Box flexDirection="row" alignItems="center" gap={1}>
+      <Box flexDirection="row" alignItems="center" gap={1} position="relative">
         {Svg ? (
-          <Svg
-            source={ringSvg(isCold ? 1 : frac, color, !isCold && !isIdle, tip)}
-            alt={tip}
-            width={22}
-            height={22}
-            isInteractive
-          />
+          <Box key="ct-icon" hover={{ scope: 'ct-tip' }}>
+            <Svg source={ringSvg(isCold ? 1 : frac, color, !isCold && !isIdle, tip)} alt={tip} width={22} height={22} />
+          </Box>
         ) : (
           <Text color={color}>{isCold ? SNOW : HOURGLASS}</Text>
         )}
+        <Box
+          key="ct-card"
+          position="absolute"
+          bottom={2}
+          left={0}
+          display="none"
+          hover={{ scope: 'ct-tip', display: 'flex' }}
+          paddingX={1}
+          backgroundColor="#2b2b2f"
+        >
+          <Text color={color}>{tip}</Text>
+        </Box>
         {below}
       </Box>
     )
